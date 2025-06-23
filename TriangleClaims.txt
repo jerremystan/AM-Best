@@ -1,0 +1,138 @@
+Private Const ValDate = "202412"
+Private Const iRow = 61 'Triangle Files Row - 1
+Private Const Address = "[Folder Location]" & ValDate & "\Compiled\"
+
+
+Sub OSTriA()
+    Application.Calculation = xlCalculationManual
+    Application.ScreenUpdating = False
+    Dim wb As Workbook
+    Dim ws As Worksheet
+    Dim LoBArr As Variant
+    Dim tempForm As String
+    
+    Dim tws As Worksheet
+    
+    LoBArr = Array("Auto", "Engineering", "Fire", "Marine-Other", "Marine-ECommerce", "Liability", "PA-Retail", "PA-Commercial", "Travel-Commercial", "Travel-Retail", "Trade Credit", "Various", "Health", "Various-Ecommerce")
+    
+    'OS Claim
+    Set wb = Workbooks.Open(Address & "OSClaim-Net.xlsx", UpdateLinks:=0, ReadOnly:=True)
+    Set ws = ThisWorkbook.Sheets("Outstanding")
+    For Each LoB In LoBArr
+
+        'Set ws = wb.Sheets(LoB)
+        For i = 1 To iRow
+
+            For j = 1 To iRow + 1 - i
+
+                If LoB = "Auto" Then
+                    tempForm = "="
+                Else
+                    tempForm = ws.Cells(i + 1, j + 2).FormulaR1C1
+                End If
+
+                ws.Cells(i + 1, j + 2).FormulaR1C1 = tempForm & "+'" & Address & "[OSClaim-Net.xlsx]" & LoB & "'!R" & (i + 1) & "C" & (j + 2)
+
+            Next j
+
+        Next i
+
+    Next LoB
+
+    wb.Close SaveChanges:=False
+    
+    'Paid Claim
+    Set wb = Workbooks.Open(Address & "PaidClaim-Net.xlsx", UpdateLinks:=0, ReadOnly:=True)
+    Set ws = ThisWorkbook.Sheets("Cummulative Paid")
+    For Each LoB In LoBArr
+        
+        'Set ws = wb.Sheets(LoB)
+        For i = 1 To iRow
+            
+            For j = 1 To iRow + 1 - i
+                
+                If LoB = "Auto" Then
+                    tempForm = "="
+                Else
+                    tempForm = ws.Cells(i + 1, j + 2).Formula
+                End If
+                
+                ws.Cells(i + 1, j + 2).Formula = tempForm & "+SUM('" & Address & "[PaidClaim-Net.xlsx]" & LoB & "'!" & colLetter(3) & (i + 1) & ":" & colLetter(j + 2) & (i + 1) & ")"
+                
+            Next j
+        
+        Next i
+        
+    Next LoB
+    
+    wb.Close SaveChanges:=False
+    
+    MsgBox "Done"
+    
+    Application.Calculation = xlCalculationAutomatic
+    Application.ScreenUpdating = True
+    
+End Sub
+
+Function colLetter(colIndex As Integer) As String
+    colLetter = Replace(Cells(1, colIndex).Address(False, False), "1", "")
+End Function
+
+
+'
+'Private Function SheetName() As ADODB.Recordset
+'    Dim rs As ADODB.Recordset
+'    Set rs = New ADODB.Recordset
+'
+'    With rs
+'        Set .ActiveConnection = Nothing
+'        .CursorLocation = adUseClient
+'        .Fields.Append "Name", adVarChar, 200
+'        .Fields.Append "Sheet Ext", adVarChar, 200
+'        .Open
+'
+''        .AddNew
+''        .Fields("Name").Value = "Gross"
+''        .Fields("Sheet Ext").Value = "Grs"
+''        .Update
+''
+''        .AddNew
+''        .Fields("Name").Value = "Net"
+''        .Fields("Sheet Ext").Value = "Net"
+''        .Update
+'
+''        .AddNew
+''        .Fields("Name").Value = "Gross Attritional Losses"
+''        .Fields("Sheet Ext").Value = "Gross_AL"
+''        .Update
+''
+''        .AddNew
+''        .Fields("Name").Value = "Gross Large Losses"
+''        .Fields("Sheet Ext").Value = "Gross_LL"
+''        .Update
+'
+''        .AddNew
+''        .Fields("Name").Value = "Non XL RI Attritional Losses"
+''        .Fields("Sheet Ext").Value = "NXL_RI_AL"
+''        .Update
+''
+''        .AddNew
+''        .Fields("Name").Value = "Non XL RI Large Losses"
+''        .Fields("Sheet Ext").Value = "NXL_RI_LL"
+''        .Update
+''
+'        .AddNew
+'        .Fields("Name").Value = "XL RI"
+'        .Fields("Sheet Ext").Value = "XL_RI"
+'        .Update
+'
+'        .AddNew
+'        .Fields("Name").Value = "Non XL RI"
+'        .Fields("Sheet Ext").Value = "NXL_RI"
+'        .Update
+'
+'    End With
+'
+'    Set ReservingType = rs
+'End Function
+'
