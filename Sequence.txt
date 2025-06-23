@@ -1,0 +1,81 @@
+
+Private Const modTMI = "[Folder Location].xlsm"
+
+
+Private Sub SQI14()
+
+    Dim ws As Worksheet
+    Dim tempForm As String
+    Dim endRow As Integer
+    
+    Set ws = ThisWorkbook.Sheets("SQI14")
+    
+    '1. Initial
+    For i = 1 To 11 'Early Year until Last Year
+        
+        For j = 1 To 4
+            
+            If j = 1 Then
+                tempForm = "="
+            Else
+                tempForm = ws.Cells(9, 3 + i).Formula
+            End If
+            
+            ws.Cells(9, 3 + i).Formula = tempForm & "+ 'Outstanding'!" & colLetter(2 + j) & (19 + 4 * i - j) & "/1000"
+        
+        Next j
+        
+    Next i
+    
+    'Paid Cummulative and Ultimate Re-Estimated
+    For i = 1 To 10 'Row
+        
+        For j = 1 To 10 + 1 - i 'Column
+            
+            For k = 1 To 4
+                
+                If k = 1 Then
+                    tempForm = "="
+                Else
+                    tempForm = ws.Cells(10 + i, 3 + j).Formula
+                End If
+                
+                ws.Cells(10 + i, 3 + j).Formula = tempForm & "+ 'Cummulative Paid'!" & colLetter(6 + 4 * (i - 1) + k) & (19 + 4 * j - k) & "/1000"
+                
+            Next k
+            
+        Next j
+        
+        For j = 1 To 4
+            
+            If j = 1 Then
+                tempForm = "="
+            Else
+                tempForm = ws.Cells(21 + i, 14 - i).Formula
+            End If
+            
+            ws.Cells(21 + i, 14 - i).Formula = tempForm & "+ 'Outstanding'!" & colLetter(2 + 4 * i + j) & (59 - 4 * (i - 1) - j) & "/1000"
+            
+        Next j
+    
+    Next i
+        
+    For i = 1 To 5
+        
+        tempForm = "="
+        
+        ws.Cells(21 + i, 14 - i).Formula = tempForm + "+ SUM('" & modTMI & "Auto-OD PartialLoss Comb_Net:Various-Ecommerce_Net'!I" & (35 - 4 * i) & ":I" & (38 - 4 * i) & ")/1000"
+    
+    Next i
+    
+    
+    MsgBox "Done"
+    
+    
+
+End Sub
+
+
+Function colLetter(colIndex As Integer) As String
+    colLetter = Replace(Cells(1, colIndex).Address(False, False), "1", "")
+End Function
